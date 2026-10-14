@@ -31,6 +31,13 @@
         .library-container {
             max-width: 1200px;
             margin: 0 auto;
+            height: calc(100vh - 48px);
+            overflow: hidden;
+        }
+
+        #library {
+            height: calc(100% - 110px);
+            overflow-y: hidden;
         }
 
         .library-title {
@@ -44,6 +51,31 @@
             color: var(--text-secondary);
             margin-bottom: 20px;
             font-size: 1.1rem;
+        }
+
+        .genre-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .genre-button {
+            border: 1px solid #475569;
+            border-radius: 999px;
+            padding: 7px 14px;
+            background: #1e293b;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font: inherit;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.3s ease;
+        }
+
+        .genre-button:hover,
+        .genre-button.is-active {
+            background: #fbbf24;
+            color: #0f172a;
+            transform: translateY(-2px);
         }
 
         /* --- Shelf Section --- */
@@ -62,14 +94,113 @@
         /* Horizontal Scrolling Shelf Container */
         .bookshelf-track {
             display: flex;
+            flex-wrap: nowrap;
             gap: 25px;
             overflow-x: auto;
+            overflow-y: hidden;
             padding: 8px 10px 16px 10px;
             scroll-behavior: smooth;
+            transform-origin: left center;
+            transition: transform 0.3s ease, opacity 0.3s ease;
             /* Wooden shelf board look underneath */
             background: linear-gradient(to bottom, transparent 92%, #29180b 92%, #1a0f06 100%);
             box-shadow: inset 0 -10px 15px -5px var(--shelf-shadow);
             border-radius: 4px;
+        }
+
+        .bookshelf-track.is-turning {
+            transform: perspective(900px) rotateY(90deg);
+            opacity: 0;
+        }
+
+        .bookshelf-track.is-growing .book-item {
+            animation: grow-book 0.55s ease both;
+        }
+
+        @keyframes grow-book {
+            from {
+                opacity: 0;
+                transform: perspective(900px) rotateY(-75deg) scale(0.35) translateY(-35px);
+            }
+            to {
+                opacity: 1;
+                transform: perspective(900px) rotateY(0) scale(1) translateY(0);
+            }
+        }
+
+        .genre-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 22px 16px;
+            perspective: 900px;
+        }
+
+        .genre-grid .book-item {
+            width: 100%;
+            height: 245px;
+            animation: grid-book-in 0.55s ease both;
+        }
+
+        .genre-grid .book-spine {
+            width: 100%;
+            height: 210px;
+            border-radius: 6px;
+            transform-origin: center;
+        }
+
+        .genre-grid .spine-title {
+            display: none;
+        }
+
+        .genre-grid .book-cover-face {
+            opacity: 1;
+            transform: scale(1);
+            border-radius: 4px;
+        }
+
+        .genre-grid .book-card {
+            position: absolute;
+            top: 218px;
+            left: 0;
+            width: 100%;
+            padding: 0;
+            display: block;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            opacity: 1;
+            transform: none;
+            pointer-events: none;
+        }
+
+        .genre-grid .book-card .book-cover,
+        .genre-grid .book-card .book-info p {
+            display: none;
+        }
+
+        .genre-grid .book-card .book-info h3 {
+            overflow: hidden;
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .genre-grid .book-item:hover .book-spine {
+            width: 100%;
+            transform: translateY(-8px) scale(1.04);
+        }
+
+        @keyframes grid-book-in {
+            from {
+                opacity: 0;
+                transform: rotateY(-70deg) scale(0.75) translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: rotateY(0) scale(1) translateY(0);
+            }
         }
 
         /* Custom Scrollbar for Shelves */
@@ -95,6 +226,11 @@
             height: clamp(130px, 16vh, 180px);
             cursor: pointer;
             transition: transform 0.3s ease;
+        }
+
+        .bookshelf-track.is-turning .book-item {
+            transform: perspective(900px) rotateY(90deg) scale(0.85);
+            opacity: 0;
         }
 
         /* Spine Styling */
@@ -177,6 +313,7 @@
             color: var(--text-secondary);
             line-height: 1.4;
             display: -webkit-box;
+            line-clamp: 4;
             -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
             overflow: hidden;
@@ -239,6 +376,15 @@
         <h1 class="library-title">My Library</h1>
         <p class="library-subtitle">Explore my screenplays, short stories, and poetry collections. Hover over a spine to
             preview a book, then click it to open.</p>
+        <nav class="genre-nav" aria-label="Filter books by genre">
+            <button type="button" class="genre-button is-active" data-genre="All">All</button>
+            <button type="button" class="genre-button" data-genre="Drama">Drama</button>
+            <button type="button" class="genre-button" data-genre="Comedy">Comedy</button>
+            <button type="button" class="genre-button" data-genre="Horror">Horror</button>
+            <button type="button" class="genre-button" data-genre="Thriller">Thriller</button>
+            <button type="button" class="genre-button" data-genre="Romance">Romance</button>
+            <button type="button" class="genre-button" data-genre="Adventure">Adventure</button>
+        </nav>
         <main id="library"></main>
     </div>
 
@@ -296,9 +442,49 @@
                 bio: "A poem about the dedication and the preparation to take on our dreams."
             },
             "The Exchange": {
-                image: "book_covers/The Exchange.jpg",
+                image: "cover.png",
                 bio: "A short story about a man who is forced to confront his past and the consequences of his actions."
             }
+        };
+
+        // Add each book's genre and cover here when adding new library entries.
+        const genreByTitle = {
+            "a routine evening visit": "Drama",
+            "Birds": "Horror",
+            "cant": "Drama",
+            "Cold Love": "Romance",
+            "Dine": "Thriller",
+            "Doors3": "Horror",
+            "For you": "Romance",
+            "Garages4": "Thriller",
+            "Gone Ghost": "Horror",
+            "Hope": "Drama",
+            "I could": "Drama",
+            "Isntthisfun": "Comedy",
+            "KOBS2E6": "Adventure",
+            "Kids on bikes (1)": "Adventure",
+            "Lag": "Thriller",
+            "Lastnight": "Romance",
+            "Nightmare-1": "Horror",
+            "Red Bull": "Comedy",
+            "Scumbag": "Comedy",
+            "Shhhhh": "Horror",
+            "Shift-updated": "Thriller",
+            "Sorry....": "Drama",
+            "TDTDDSM": "Horror",
+            "THE PRIVATE CHAMBERS": "Thriller",
+            "Thatwasthen": "Drama",
+            "The box": "Horror",
+            "The Exchange": "Thriller",
+            "The Eye Witness": "Thriller",
+            "The Hangman": "Horror",
+            "The Marbels - Draft 2": "Adventure",
+            "The Place": "Drama",
+            "The Second Bigget Slideshow!": "Comedy",
+            "Tuesday Night Circle-updated": "Drama",
+            "you good": "Comedy",
+            "Messangers": "Thriller",
+            "The Trail": "Adventure"
         };
 
         const books = Object.entries(folderCatalog).flatMap(([folder, titles]) =>
@@ -310,8 +496,9 @@
                         folder,
                         shelf: folder,
                         title,
+                        genre: genreByTitle[title] || "Drama",
                         description: details.bio || `${folder} PDF`,
-                        image: details.image || "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=300&q=80"
+                        image: details.image || "cover.png"
                     };
                 })
         );
@@ -329,43 +516,89 @@
         ];
 
         const shuffledColors = [...colorThemes].sort(() => Math.random() - 0.5);
-        const shelves = Object.keys(folderCatalog);
         const library = document.querySelector("#library");
         const pdfRoot = "pdfs";
+        const genreButtons = document.querySelectorAll(".genre-button");
         let colorIndex = 0;
+        let selectedGenre = "All";
 
-        shelves.forEach(shelfName => {
-            const section = document.createElement("section");
-            section.className = "shelf-section";
-            section.innerHTML = `<h2 class="shelf-category-title">${shelfName}</h2><div class="bookshelf-track"></div>`;
-            const track = section.querySelector(".bookshelf-track");
+        function renderGenre(genre, shouldAnimate = true) {
+            const currentTrack = library.querySelector(".bookshelf-track");
+            if (shouldAnimate && currentTrack) {
+                currentTrack.classList.add("is-turning");
+            }
 
-            books.filter(book => book.shelf === shelfName).forEach(book => {
-                const item = document.createElement("article");
-                const [colorOne, colorTwo] = shuffledColors[colorIndex % shuffledColors.length];
-                colorIndex++;
-                item.className = "book-item";
-                item.style.setProperty("--spine-color-1", colorOne);
-                item.style.setProperty("--spine-color-2", colorTwo);
-                const pdfLink = `${pdfRoot}/${encodeURIComponent(book.folder)}/${encodeURIComponent(book.title)}.pdf`;
-                item.innerHTML = `
-                    <a href="${pdfLink}" target="_blank" rel="noopener" class="book-spine" aria-label="Open ${book.title}">
-                        <span class="spine-title">${book.title}</span>
-                    </a>
-                    <div class="book-card">
-                        <img src="${book.image}" alt="Cover of ${book.title}" class="book-cover">
-                        <div class="book-info">
-                            <h3>${book.title}</h3>
-                            <p>${book.description}</p>
+            setTimeout(() => {
+                library.innerHTML = "";
+                const visibleBooks = genre === "All" ? books : books.filter(book => book.genre === genre);
+                const sortedBooks = visibleBooks.sort((firstBook, secondBook) =>
+                    firstBook.title.localeCompare(secondBook.title)
+                );
+                if (genre !== "All") {
+                    const section = document.createElement("section");
+                    section.className = "shelf-section";
+                    section.innerHTML = `<h2 class="shelf-category-title">${genre} Collection</h2><div class="genre-grid"></div>`;
+                    const grid = section.querySelector(".genre-grid");
+                    sortedBooks.forEach((book, bookIndex) => addBookToTrack(book, grid, bookIndex, true));
+                    library.appendChild(section);
+                } else {
+                    const genres = ["Drama", "Comedy", "Horror", "Thriller", "Romance", "Adventure"];
+                    genres.forEach(genreName => {
+                        const genreBooks = sortedBooks.filter(book => book.genre === genreName);
+                        if (genreBooks.length === 0) return;
+                        const section = document.createElement("section");
+                        section.className = "shelf-section";
+                        section.innerHTML = `<h2 class="shelf-category-title">${genreName}</h2><div class="bookshelf-track is-growing"></div>`;
+                        const track = section.querySelector(".bookshelf-track");
+                        genreBooks.forEach((book, bookIndex) => addBookToTrack(book, track, bookIndex, false));
+                        library.appendChild(section);
+                    });
+                }
+
+                function addBookToTrack(book, track, bookIndex, isGrid) {
+                    const item = document.createElement("article");
+                    const [colorOne, colorTwo] = shuffledColors[colorIndex % shuffledColors.length];
+                    colorIndex++;
+                    item.className = "book-item";
+                    item.style.setProperty("--spine-color-1", colorOne);
+                    item.style.setProperty("--spine-color-2", colorTwo);
+                    item.style.animationDelay = `${bookIndex * 70}ms`;
+                    const pdfLink = `${pdfRoot}/${encodeURIComponent(book.folder)}/${encodeURIComponent(book.title)}.pdf`;
+                    const coverImage = book.image.startsWith("book_covers/") ? book.image : "cover.png";
+                    item.innerHTML = `
+                        <a href="${pdfLink}" target="_blank" rel="noopener" class="book-spine" aria-label="Open ${book.title}">
+                            <span class="spine-title">${book.title}</span>
+                            <span class="book-cover-face" style="background-image: url('${coverImage}')"></span>
+                        </a>
+                        <div class="book-card">
+                            <img src="${coverImage}" alt="Cover of ${book.title}" class="book-cover">
+                            <div class="book-info">
+                                <h3>${book.title}</h3>
+                                <p>${book.description}</p>
+                            </div>
                         </div>
-                    </div>
-                `;
-                track.appendChild(item);
-                addHoverPanelBehavior(item, item.querySelector(".book-card"));
-            });
+                    `;
+                    if (isGrid) item.classList.add("grid-book");
+                    track.appendChild(item);
+                    addHoverPanelBehavior(item, item.querySelector(".book-card"));
+                }
+            }, shouldAnimate ? 300 : 0);
+        }
 
-            library.appendChild(section);
+        genreButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                const genre = button.dataset.genre;
+                if (genre === selectedGenre) return;
+                selectedGenre = genre;
+                genreButtons.forEach(currentButton => currentButton.classList.toggle(
+                    "is-active",
+                    currentButton === button
+                ));
+                renderGenre(genre);
+            });
         });
+
+        renderGenre(selectedGenre, false);
 
         function addHoverPanelBehavior(item, card) {
             let hideTimeout;
