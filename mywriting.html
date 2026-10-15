@@ -32,12 +32,22 @@
             max-width: 1200px;
             margin: 0 auto;
             height: calc(100vh - 48px);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
         #library {
-            height: calc(100% - 110px);
+            flex: 1 1 auto;
+            min-height: 0;
+            height: auto;
             overflow-y: hidden;
+        }
+
+        #library.all-view {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .library-title {
@@ -58,6 +68,37 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 14px;
+        }
+
+        .search-row {
+            margin-bottom: 14px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .search-input {
+            width: min(100%, 420px);
+            box-sizing: border-box;
+            border: 1px solid #475569;
+            border-radius: 999px;
+            padding: 9px 16px;
+            background: #1e293b;
+            color: var(--text-primary);
+            font: inherit;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
         }
 
         .genre-button {
@@ -83,6 +124,45 @@
             margin-bottom: 16px;
         }
 
+        #library.all-view .shelf-section {
+            flex: 1 1 0;
+            min-height: 0;
+            margin-bottom: 0;
+        }
+
+        #library.all-view .shelf-category-title {
+            display: none;
+        }
+
+        #library.all-view .bookshelf-track {
+            height: 100%;
+            box-sizing: border-box;
+            align-items: flex-end;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        #library.all-view .book-item {
+            flex: 1 1 0;
+            min-width: 0;
+            width: auto;
+            height: clamp(130px, 18vh, 180px);
+        }
+
+        #library.all-view .book-spine {
+            width: 100%;
+        }
+
+        #library.all-view .book-cover-face {
+            display: block;
+        }
+
+        #library.all-view .book-item:hover .book-spine {
+            width: 110px;
+        }
+
         .shelf-category-title {
             font-size: 1.5rem;
             margin: 10px 0 8px;
@@ -95,8 +175,8 @@
         .bookshelf-track {
             display: flex;
             flex-wrap: nowrap;
-            gap: 25px;
-            overflow-x: auto;
+            gap: 10px;
+            overflow-x: hidden;
             overflow-y: hidden;
             padding: 8px 10px 16px 10px;
             scroll-behavior: smooth;
@@ -133,6 +213,7 @@
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 22px 16px;
             perspective: 900px;
+            overflow: hidden;
         }
 
         .genre-grid .book-item {
@@ -149,7 +230,19 @@
         }
 
         .genre-grid .spine-title {
-            display: none;
+            top: auto;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            max-height: none;
+            z-index: 2;
+            padding: 5px 4px;
+            background: rgba(15, 23, 42, 0.82);
+            writing-mode: horizontal-tb;
+            transform: none;
+            text-align: center;
+            white-space: normal;
+            font-size: 0.75rem;
         }
 
         .genre-grid .book-cover-face {
@@ -179,12 +272,7 @@
         }
 
         .genre-grid .book-card .book-info h3 {
-            overflow: hidden;
-            margin: 0;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            display: none;
         }
 
         .genre-grid .book-item:hover .book-spine {
@@ -222,7 +310,7 @@
         .book-item {
             position: relative;
             flex-shrink: 0;
-            width: 50px;
+            width: var(--book-width, 50px);
             height: clamp(130px, 16vh, 180px);
             cursor: pointer;
             transition: transform 0.3s ease;
@@ -236,7 +324,7 @@
         /* Spine Styling */
         .book-spine {
             position: absolute;
-            width: 50px;
+            width: var(--book-width, 50px);
             height: clamp(130px, 16vh, 180px);
             box-sizing: border-box;
             color: inherit;
@@ -301,6 +389,25 @@
             flex-shrink: 0;
         }
 
+        .book-cover-face {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            border-radius: 4px 2px 2px 4px;
+            opacity: 0;
+            transform: scale(0.94);
+            transition: opacity 0.2s ease, transform 0.3s ease;
+        }
+
+        .book-cover-face::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 45%, rgba(0, 0, 0, 0.3));
+            border-radius: inherit;
+        }
+
         .book-info h3 {
             margin: 0 0 8px 0;
             font-size: 1.1rem;
@@ -321,8 +428,29 @@
 
         /* --- Hover Interactions --- */
         .book-item:hover .book-spine {
-            transform: perspective(1000px) translateY(-8px) rotateY(-10deg);
-            box-shadow: inset 3px 0 6px rgba(0, 0, 0, 0.3), 5px 12px 20px rgba(0, 0, 0, 0.6);
+            width: 110px;
+            transform: perspective(1000px) translateX(18px) translateY(-8px) rotateY(-10deg);
+            box-shadow: inset 3px 0 6px rgba(0, 0, 0, 0.3), 8px 12px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .book-item:hover .spine-title {
+            top: auto;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 2;
+            padding: 5px 4px;
+            background: rgba(15, 23, 42, 0.82);
+            writing-mode: horizontal-tb;
+            transform: none;
+            text-align: center;
+            white-space: normal;
+            font-size: 0.75rem;
+        }
+
+        .book-item:hover .book-cover-face {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .book-item:hover {
@@ -332,6 +460,25 @@
         @media (max-height: 750px) {
             body {
                 padding: 12px 10px;
+            }
+
+            @media (max-width: 700px) {
+                .library-container {
+                    height: calc(100vh - 24px);
+                }
+
+                body {
+                    padding: 12px 10px;
+                }
+
+                .library-title {
+                    font-size: 2rem;
+                }
+
+                .library-subtitle {
+                    font-size: 0.85rem;
+                    margin-bottom: 8px;
+                }
             }
 
             .library-title {
@@ -376,6 +523,10 @@
         <h1 class="library-title">My Library</h1>
         <p class="library-subtitle">Explore my screenplays, short stories, and poetry collections. Hover over a spine to
             preview a book, then click it to open.</p>
+        <div class="search-row">
+            <label for="book-search" class="sr-only">Search books</label>
+            <input id="book-search" class="search-input" type="search" placeholder="Search books by title..." autocomplete="off">
+        </div>
         <nav class="genre-nav" aria-label="Filter books by genre">
             <button type="button" class="genre-button is-active" data-genre="All">All</button>
             <button type="button" class="genre-button" data-genre="Drama">Drama</button>
@@ -384,6 +535,9 @@
             <button type="button" class="genre-button" data-genre="Thriller">Thriller</button>
             <button type="button" class="genre-button" data-genre="Romance">Romance</button>
             <button type="button" class="genre-button" data-genre="Adventure">Adventure</button>
+            <button type="button" class="genre-button" data-genre="Screenplays">Screenplays</button>
+            <button type="button" class="genre-button" data-genre="Short Stories">Short Stories</button>
+            <button type="button" class="genre-button" data-genre="Poetry">Poetry</button>
         </nav>
         <main id="library"></main>
     </div>
@@ -393,7 +547,7 @@
         const folderCatalog = {
             "Screenplays": [
                 "a routine evening visit",
-                "Birds",
+                "Birds (screenplay)",
                 "cant",
                 "Cold Love",
                 "Dine",
@@ -436,69 +590,63 @@
             ]
         };
 
+        // Add or edit every title's metadata in this section.
         const bookDetails = {
-            "The Trail": {
-                image: "book_covers/The Trail.jpg",
-                bio: "A poem about the dedication and the preparation to take on our dreams."
-            },
-            "The Exchange": {
-                image: "cover.png",
-                bio: "A short story about a man who is forced to confront his past and the consequences of his actions."
-            }
-        };
-
-        // Add each book's genre and cover here when adding new library entries.
-        const genreByTitle = {
-            "a routine evening visit": "Drama",
-            "Birds": "Horror",
-            "cant": "Drama",
-            "Cold Love": "Romance",
-            "Dine": "Thriller",
-            "Doors3": "Horror",
-            "For you": "Romance",
-            "Garages4": "Thriller",
-            "Gone Ghost": "Horror",
-            "Hope": "Drama",
-            "I could": "Drama",
-            "Isntthisfun": "Comedy",
-            "KOBS2E6": "Adventure",
-            "Kids on bikes (1)": "Adventure",
-            "Lag": "Thriller",
-            "Lastnight": "Romance",
-            "Nightmare-1": "Horror",
-            "Red Bull": "Comedy",
-            "Scumbag": "Comedy",
-            "Shhhhh": "Horror",
-            "Shift-updated": "Thriller",
-            "Sorry....": "Drama",
-            "TDTDDSM": "Horror",
-            "THE PRIVATE CHAMBERS": "Thriller",
-            "Thatwasthen": "Drama",
-            "The box": "Horror",
-            "The Exchange": "Thriller",
-            "The Eye Witness": "Thriller",
-            "The Hangman": "Horror",
-            "The Marbels - Draft 2": "Adventure",
-            "The Place": "Drama",
-            "The Second Bigget Slideshow!": "Comedy",
-            "Tuesday Night Circle-updated": "Drama",
-            "you good": "Comedy",
-            "Messangers": "Thriller",
-            "The Trail": "Adventure"
+            "a routine evening visit": { genre: "Horror", image: "cover.png", bio: "A routine visit takes an unexpected turn." },
+            "Birds (screenplay)": { genre: "Drama", image: "cover.png", bio: "A dramatic screenplay." },
+            "cant": { genre: "Drama", image: "cover.png", bio: "A tense dramatic screenplay." },
+            "Cold Love": { genre: "Romance", image: "cover.png", bio: "A complicated story of love and distance." },
+            "Dine": { genre: "Thriller", image: "cover.png", bio: "A dinner where nothing is as it seems." },
+            "Doors3": { genre: "Horror", image: "cover.png", bio: "A frightening story behind three doors." },
+            "For you": { genre: "Romance", image: "cover.png", bio: "A personal story about what we leave behind." },
+            "Garages4": { genre: "Thriller", image: "cover.png", bio: "A mystery hiding in an ordinary place." },
+            "Gone Ghost": { genre: "Horror", image: "cover.png", bio: "A ghost story about someone who disappeared." },
+            "Hope": { genre: "Drama", image: "cover.png", bio: "A dramatic story about holding on to hope." },
+            "I could": { genre: "Drama", image: "cover.png", bio: "A character faces a difficult choice." },
+            "Isntthisfun": { genre: "Comedy", image: "cover.png", bio: "A darkly funny screenplay." },
+            "KOBS2E6": { genre: "Adventure", image: "cover.png", bio: "An adventure in the Kids on Bikes world." },
+            "Kids on bikes (1)": { genre: "Adventure", image: "cover.png", bio: "A group of kids find trouble together." },
+            "Lag": { genre: "Thriller", image: "cover.png", bio: "A suspenseful story about time and delay." },
+            "Lastnight": { genre: "Romance", image: "cover.png", bio: "One night changes two lives." },
+            "Nightmare-1": { genre: "Horror", image: "cover.png", bio: "A nightmare that refuses to end." },
+            "Red Bull": { genre: "Comedy", image: "cover.png", bio: "An energetic comedy about bad decisions." },
+            "Scumbag": { genre: "Comedy", image: "cover.png", bio: "A comedy about an unforgettable character." },
+            "Shhhhh": { genre: "Horror", image: "cover.png", bio: "Sometimes silence is the scariest sound." },
+            "Shift-updated": { genre: "Thriller", image: "cover.png", bio: "A sudden shift reveals the truth." },
+            "Sorry....": { genre: "Drama", image: "cover.png", bio: "An apology arrives too late." },
+            "TDTDDSM": { genre: "Horror", image: "cover.png", bio: "A dark story with something watching." },
+            "THE PRIVATE CHAMBERS": { genre: "Thriller", image: "cover.png", bio: "Secrets are kept behind locked doors." },
+            "Thatwasthen": { genre: "Drama", image: "cover.png", bio: "A story about memory and consequences." },
+            "The box": { genre: "Horror", image: "cover.png", bio: "A mysterious box brings danger." },
+            "The Exchange": { genre: "Thriller", image: "cover.png", bio: "A man confronts his past and its consequences." },
+            "The Eye Witness": { genre: "Thriller", image: "cover.png", bio: "A witness knows more than they reveal." },
+            "The Hangman": { genre: "Horror", image: "cover.png", bio: "A dark tale of fear and judgment." },
+            "The Marbels - Draft 2": { genre: "Adventure", image: "cover.png", bio: "A strange adventure begins with marbles." },
+            "The Place": { genre: "Drama", image: "cover.png", bio: "A place holds a difficult memory." },
+            "The Second Bigget Slideshow!": { genre: "Comedy", image: "cover.png", bio: "A playful comedy about making a show." },
+            "Tuesday Night Circle-updated": { genre: "Drama", image: "cover.png", bio: "A conversation changes a close group." },
+            "you good": { genre: "Comedy", image: "cover.png", bio: "A funny question with a complicated answer." },
+            "Birds": { genre: "Horror", image: "cover.png", bio: "A short story about an unsettling encounter." },
+            "Messangers": { genre: "Thriller", image: "cover.png", bio: "A message arrives with a warning." },
+            "The Trail": { genre: "Adventure", image: "book_covers/The Trail.jpg", bio: "A poem about dedication and preparation." },
         };
 
         const books = Object.entries(folderCatalog).flatMap(([folder, titles]) =>
             titles
                 .sort((firstTitle, secondTitle) => firstTitle.localeCompare(secondTitle))
                 .map(title => {
-                    const details = bookDetails[title] || {};
+                    const details = bookDetails[title] || {
+                        genre: "Drama",
+                        image: "cover.png",
+                        bio: `${folder} PDF`
+                    };
                     return {
                         folder,
                         shelf: folder,
                         title,
-                        genre: genreByTitle[title] || "Drama",
-                        description: details.bio || `${folder} PDF`,
-                        image: details.image || "cover.png"
+                        genre: details.genre,
+                        description: details.bio,
+                        image: details.image
                     };
                 })
         );
@@ -519,8 +667,10 @@
         const library = document.querySelector("#library");
         const pdfRoot = "pdfs";
         const genreButtons = document.querySelectorAll(".genre-button");
+        const searchInput = document.querySelector("#book-search");
         let colorIndex = 0;
         let selectedGenre = "All";
+        let searchTerm = "";
 
         function renderGenre(genre, shouldAnimate = true) {
             const currentTrack = library.querySelector(".bookshelf-track");
@@ -530,7 +680,11 @@
 
             setTimeout(() => {
                 library.innerHTML = "";
-                const visibleBooks = genre === "All" ? books : books.filter(book => book.genre === genre);
+                library.classList.toggle("all-view", genre === "All");
+                const visibleBooks = books.filter(book => {
+                    const matchesFilter = genre === "All" || book.genre === genre || book.folder === genre;
+                    return matchesFilter && book.title.toLowerCase().includes(searchTerm);
+                });
                 const sortedBooks = visibleBooks.sort((firstBook, secondBook) =>
                     firstBook.title.localeCompare(secondBook.title)
                 );
@@ -542,17 +696,19 @@
                     sortedBooks.forEach((book, bookIndex) => addBookToTrack(book, grid, bookIndex, true));
                     library.appendChild(section);
                 } else {
-                    const genres = ["Drama", "Comedy", "Horror", "Thriller", "Romance", "Adventure"];
-                    genres.forEach(genreName => {
-                        const genreBooks = sortedBooks.filter(book => book.genre === genreName);
-                        if (genreBooks.length === 0) return;
+                    const booksPerShelf = Math.max(1, Math.ceil(sortedBooks.length / 3));
+                    for (let shelfIndex = 0; shelfIndex < sortedBooks.length; shelfIndex += booksPerShelf) {
                         const section = document.createElement("section");
                         section.className = "shelf-section";
-                        section.innerHTML = `<h2 class="shelf-category-title">${genreName}</h2><div class="bookshelf-track is-growing"></div>`;
+                        section.innerHTML = `<div class="bookshelf-track is-growing"></div>`;
                         const track = section.querySelector(".bookshelf-track");
-                        genreBooks.forEach((book, bookIndex) => addBookToTrack(book, track, bookIndex, false));
+                        sortedBooks.slice(shelfIndex, shelfIndex + booksPerShelf)
+                            .forEach((book, bookIndex) => addBookToTrack(book, track, bookIndex, false));
                         library.appendChild(section);
-                    });
+                    }
+                    if (sortedBooks.length === 0) {
+                        library.innerHTML = `<p class="library-empty">No books match "${searchTerm}".</p>`;
+                    }
                 }
 
                 function addBookToTrack(book, track, bookIndex, isGrid) {
@@ -585,6 +741,13 @@
             }, shouldAnimate ? 300 : 0);
         }
 
+        function sizeShelfToFit(track, bookCount) {
+            const availableWidth = track.clientWidth;
+            const gapWidth = Math.max(0, bookCount - 1) * 10;
+            const bookWidth = Math.max(14, Math.floor((availableWidth - gapWidth - 20) / bookCount));
+            track.style.setProperty("--book-width", `${bookWidth}px`);
+        }
+
         genreButtons.forEach(button => {
             button.addEventListener("click", () => {
                 const genre = button.dataset.genre;
@@ -595,6 +758,19 @@
                     currentButton === button
                 ));
                 renderGenre(genre);
+            });
+        });
+
+        searchInput.addEventListener("input", () => {
+            searchTerm = searchInput.value.trim().toLowerCase();
+            renderGenre(selectedGenre, false);
+        });
+
+        window.addEventListener("resize", () => {
+            document.querySelectorAll(".bookshelf-track").forEach(track => {
+                if (!library.classList.contains("all-view")) {
+                    sizeShelfToFit(track, track.querySelectorAll(".book-item").length);
+                }
             });
         });
 
